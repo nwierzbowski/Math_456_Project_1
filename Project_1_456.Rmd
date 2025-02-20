@@ -1,0 +1,19 @@
+---
+title: "Project_1_456"
+author: "Anthony Yasan"
+date: "2025-02-20"
+output: pdf_document
+---
+
+```{r}
+library(ipumsr)
+library(dplyr)
+
+
+
+
+cps_data <- read_ipums_micro(cps_ddi_file)
+
+head(cps_data)
+```
+
