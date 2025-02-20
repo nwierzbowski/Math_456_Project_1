@@ -9,11 +9,9 @@ output: pdf_document
 library(ipumsr)
 library(dplyr)
 
+ddi <- read_ipums_ddi("usa_00001.xml")
+data <- read_ipums_micro(ddi)
 
 
-
-cps_data <- read_ipums_micro(cps_ddi_file)
-
-head(cps_data)
 ```
 
