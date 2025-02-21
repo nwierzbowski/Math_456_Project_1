@@ -1,17 +1,173 @@
 ---
 title: "Project_1_456"
-author: "Anthony Yasan"
+author: "Anthony Yasan, Preston O'Connor"
 date: "2025-02-20"
 output: pdf_document
 ---
+We are modeling the linear regression of the Dependent Income, Independent Age in our model
 
+
+# Introduction
+
+
+
+## Installing the R-packages
 ```{r}
+# remove comments out these blocks to install the R packages that are being used
+#install.packages("ipumsr") # for the data set
+#install.packages("dplyr") # for the data set
+#install.packages("caTools") # use this for the set seed of the training set
+#install.packages("ggplot2") 
+
+# Code to implement the R packages
 library(ipumsr)
 library(dplyr)
+library(ggplot2) # visial displays of the Boxplot, and Q-Q plots
+library(caTools)
+```
 
+
+# Data description
+## Information about the Data set
+
+
+## Table of Data
+```{r}
 ddi <- read_ipums_ddi("usa_00001.xml")
 data <- read_ipums_micro(ddi)
+#View(data)
+# here Ther Code struggles to run the data set with 2million points is two extensive to run
+set.seed(11)
 
+s <- sample(1:nrow(data), size = 200000)
+data <- data[s, ]
+dim(data)
 
 ```
+
+## Data Cleaning and Outlier Removal
+
+```{r}
+# select the age and the Total Household income as the main columns of interest, then filter based of 18 <= age <= 65 (Thats the only age bracket that is currently working and has other factors effecting income)
+
+# ask if the filter crashes out after a certain amount on the computer and if we need to shrink the train size
+
+data <- data %>%
+  select(AGE, HHINCOME) %>%
+  mutate(HHINCOME = as.numeric(HHINCOME), AGE = as.numeric(AGE)) %>%
+  filter(!is.na(HHINCOME), !is.na(AGE)) %>%
+  filter(between(AGE, 18, 65))
+
+dim(data)  #if you want to view the two filtered columns
+
+IQR_of_AGE <- IQR(data$AGE)
+IQR_of_HHINCOME <- IQR(data$HHINCOME)
+
+# calculating the upper and lower bounds of both of the data sets to filter the data
+AGE_lower <- quantile(data$AGE, 0.25) - 1.5 * IQR_of_AGE
+AGE_upper <- quantile(data$AGE, 0.75) + 1.5 * IQR_of_AGE
+
+HHINCOME_lower <- quantile(data$HHINCOME, 0.25) - 1.5 * IQR_of_HHINCOME
+HHINCOME_upper <- quantile(data$HHINCOME, 0.75) + 1.5 * IQR_of_HHINCOME
+
+#continue to filter any of the outliers that are presents in the data set
+filtered_data <- data %>%
+  filter(between(AGE, AGE_lower, AGE_upper),
+         between(HHINCOME, HHINCOME_lower, HHINCOME_upper))
+
+```
+
+## Orignal Box Plots
+### AGE
+```{R} 
+boxplot(data$AGE, main = "Boxplot of Age", col = "lightblue", ylab = "Age")
+```
+
+### Total House Hold Income
+```{R} 
+boxplot(data$HHINCOME, main = "Boxplot of Household Income", col = "lightgreen", ylab = "Household Income")
+```
+
+## filtered Box Plots
+### Filtered and Cleaned AGE
+```{R} 
+boxplot(filtered_data$AGE, main = "Boxplot of Filtered Ages", col = "lightblue", ylab = "Age")
+```
+
+### Filter and Cleaned Total House Hold Income
+```{R} 
+boxplot(filtered_data$HHINCOME, main = "Boxplot of Filtered Household Income", col = "lightgreen", ylab = "Household Income")
+```
+
+#Analysis
+
+```{r}
+# modifying data into a training set and a testing set
+set.seed(1)
+# ask about a good metric for the split of the data
+split <- sample.split(filtered_data$HHINCOME, SplitRatio = 0.98)
+train_set <- subset(filtered_data, split == TRUE)
+test_set <- subset(filtered_data, split == FALSE)
+
+#sized of the sets
+dim(train_set)
+dim(test_set)
+
+#model from the training data
+linear_model <- lm(HHINCOME ~ AGE, data = train_set)
+
+# Prediceted values on the test set
+test_set$predicted_HHI <- predict(linear_model, newdata = test_set)
+
+# calculate residuals for the test set
+test_set$residuals <- test_set$HHINCOME - test_set$predicted_HHI
+
+
+#implement the diagonal plot 
+
+# implement the various forms of analysis to show and explain what is going on in the data set
+```
+## Implementing the Plots
+
+### Risidual vs. Fitted Values Plot
+```{r}
+ggplot(test_set, aes(x = predicted_HHI, y = residuals)) +
+  geom_point(alpha = 0.5, color = 'black') +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  labs(title = "Residuals vs. Fitted Values",
+       x = "Fitted Values",
+       y = "Residuals") +
+  theme_minimal()
+```
+
+###Normal Q-Q Plot
+```{r}
+ggplot(test_set, aes(sample = residuals)) +
+  stat_qq() +
+  stat_qq_line() +
+  labs(title = "Normal Q-Q Plot of Residuals") +
+  theme_minimal()
+```
+### Linear Regression with Testing Data
+```{r}
+ggplot(test_set, aes(x = AGE, y = HHINCOME)) +
+  geom_point(alpha = 0.3, color = "red") +  # Scatter plot of data points
+  geom_smooth(method = "lm", color = "Navy", se = FALSE) +  # Regression line
+  labs(title = "Linear Regression: House Hold Income vs Age",
+       x = "Age of Person",
+       y = "Total House Hold Income") +
+  scale_y_continuous(labels = scales::comma)
+  theme_minimal()
+```
+### Summary of the Simple Linear Regression Model
+```{r}
+summary(linear_model)
+```
+
+# Model Evaluation and Prediction
+
+# Conclusion and Summary
+
+# Reference
+
 
