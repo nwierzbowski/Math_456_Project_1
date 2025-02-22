@@ -1,17 +1,19 @@
 ---
 title: "Project_1_456"
-author: "Anthony Yasan, Preston O'Connor"
+author: "Anthony Yasan, Preston O'Connor, Khoa Dao"
 date: "2025-02-20"
 output: pdf_document
+editor_options: 
+  markdown: 
+    wrap: sentence
 ---
-We are modeling the linear regression of the Dependent Income, Independent Age in our model
 
+We are modeling the linear regression of the Dependent Income, Independent Age in our model
 
 # Introduction
 
-
-
 ## Installing the R-packages
+
 ```{r}
 # remove comments out these blocks to install the R packages that are being used
 #install.packages("ipumsr") # for the data set
@@ -26,17 +28,46 @@ library(ggplot2) # visial displays of the Boxplot, and Q-Q plots
 library(caTools)
 ```
 
-
 # Data description
+
+The dataset is sourced from IPUMS USA, which provides microdata extracted from the U.S.
+Census and American Community Survey (ACS).
+It contains demographic and economic data at both household and individual levels.
+
+The dataset consists of 3,405,809 rows and 15 columns.
+Each observation represents a household.
+
+Here are the key variables included in the dataset:\
+- YEAR: Census year (e.g., 2023).\
+- SAMPLE: IPUMS sample identifier.\
+- SERIAL: Unique household serial number.\
+- CBSERIAL: Original Census Bureau household serial number.\
+- HHWT: Household weight for proper representation.\
+- CLUSTER: Household cluster for variance estimation.\
+- STRATA: Household strata for variance estimation.\
+- GQ: Group quarters status (e.g., household, institution).\
+- HHINCOME: Total household income for all members over 15 years old.
+- PERNUM: Person number within the household.\
+- PERWT: Person weight for population estimates.\
+- SEX: Gender classification (Male/Female).\
+- AGE: Individual’s age in years.\
+- RACE: General race classification.\
+- RACED: Detailed race classification.
+
 ## Information about the Data set
 
-
-## Table of Data
 ```{r}
 ddi <- read_ipums_ddi("usa_00001.xml")
 data <- read_ipums_micro(ddi)
+dim(data)
+summary(data)
+```
+
+## Table of Data
+
+```{r}
 #View(data)
-# here Ther Code struggles to run the data set with 2million points is two extensive to run
+#The Code struggles to run the data set with 2 million points is two extensive to run
 set.seed(11)
 
 s <- sample(1:nrow(data), size = 200000)
@@ -48,7 +79,7 @@ dim(data)
 ## Data Cleaning and Outlier Removal
 
 ```{r}
-# select the age and the Total Household income as the main columns of interest, then filter based of 18 <= age <= 65 (Thats the only age bracket that is currently working and has other factors effecting income)
+# select the age and the Total Household income as the main columns of interest, then filter based of 18 <= age <= 65 (Thats the only age bracket that is currently working and has other factors effecting income). Also, there is a negative value in household income which doesn't make sense at all, so we filter it out. 
 
 # ask if the filter crashes out after a certain amount on the computer and if we need to shrink the train size
 
@@ -56,7 +87,8 @@ data <- data %>%
   select(AGE, HHINCOME) %>%
   mutate(HHINCOME = as.numeric(HHINCOME), AGE = as.numeric(AGE)) %>%
   filter(!is.na(HHINCOME), !is.na(AGE)) %>%
-  filter(between(AGE, 18, 65))
+  filter(between(AGE, 18, 65)) %>%
+  filter(HHINCOME > 0)
 
 dim(data)  #if you want to view the two filtered columns
 
@@ -72,35 +104,69 @@ HHINCOME_upper <- quantile(data$HHINCOME, 0.75) + 1.5 * IQR_of_HHINCOME
 
 #continue to filter any of the outliers that are presents in the data set
 filtered_data <- data %>%
-  filter(between(AGE, AGE_lower, AGE_upper),
-         between(HHINCOME, HHINCOME_lower, HHINCOME_upper))
+  filter(between(AGE, AGE_lower, AGE_upper)) %>%
+  filter(between(HHINCOME, HHINCOME_lower, HHINCOME_upper))
 
+```
+
+## Original Histogram
+
+### Age
+```{r}
+ggplot(data, aes(x = AGE)) +
+  geom_histogram(binwidth = 5, fill = "blue", color = "black", alpha = 0.7) +
+  labs(title = "Distribution of Age", x = "Age", y = "Frequency") +
+  theme_minimal()
+```
+### Household Income
+```{r}
+ggplot(data, aes(x = HHINCOME)) +
+  geom_histogram(binwidth = 10000, fill = "green", color = "black", alpha = 0.7) +
+  labs(title = "Distribution of Household Income", x = "Household Income", y = "Frequency") +
+  theme_minimal()
+```
+
+## Filtered Histogram
+
+### AGE
+```{r}
+ggplot(filtered_data, aes(x = AGE)) +
+  geom_histogram(binwidth = 5, fill = "blue", color = "black", alpha = 0.7) +
+  labs(title = "Distribution of Age", x = "Age", y = "Frequency") +
+  theme_minimal()
+```
+### Household Income
+```{r}
+ggplot(filtered_data, aes(x = HHINCOME)) +
+  geom_histogram(binwidth = 10000, fill = "green", color = "black", alpha = 0.7) +
+  labs(title = "Distribution of Household Income", x = "Household Income", y = "Frequency") +
+  theme_minimal()
 ```
 
 ## Orignal Box Plots
+
 ### AGE
-```{R} 
+```{R}
 boxplot(data$AGE, main = "Boxplot of Age", col = "lightblue", ylab = "Age")
 ```
 
-### Total House Hold Income
-```{R} 
+### Household Income
+```{R}
 boxplot(data$HHINCOME, main = "Boxplot of Household Income", col = "lightgreen", ylab = "Household Income")
 ```
 
-## filtered Box Plots
-### Filtered and Cleaned AGE
-```{R} 
+## Filtered Box Plots
+
+### AGE
+```{R}
 boxplot(filtered_data$AGE, main = "Boxplot of Filtered Ages", col = "lightblue", ylab = "Age")
 ```
-
-### Filter and Cleaned Total House Hold Income
-```{R} 
+### Household Income
+```{R}
 boxplot(filtered_data$HHINCOME, main = "Boxplot of Filtered Household Income", col = "lightgreen", ylab = "Household Income")
 ```
 
 #Analysis
-
 ```{r}
 # modifying data into a training set and a testing set
 set.seed(1)
@@ -127,6 +193,7 @@ test_set$residuals <- test_set$HHINCOME - test_set$predicted_HHI
 
 # implement the various forms of analysis to show and explain what is going on in the data set
 ```
+
 ## Implementing the Plots
 
 ### Risidual vs. Fitted Values Plot
@@ -148,6 +215,7 @@ ggplot(test_set, aes(sample = residuals)) +
   labs(title = "Normal Q-Q Plot of Residuals") +
   theme_minimal()
 ```
+
 ### Linear Regression with Testing Data
 ```{r}
 ggplot(test_set, aes(x = AGE, y = HHINCOME)) +
@@ -159,6 +227,7 @@ ggplot(test_set, aes(x = AGE, y = HHINCOME)) +
   scale_y_continuous(labels = scales::comma)
   theme_minimal()
 ```
+
 ### Summary of the Simple Linear Regression Model
 ```{r}
 summary(linear_model)
@@ -169,5 +238,3 @@ summary(linear_model)
 # Conclusion and Summary
 
 # Reference
-
-
