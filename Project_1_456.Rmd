@@ -35,6 +35,9 @@ Census and American Community Survey (ACS).
 It contains demographic and economic data at both household and individual levels.
 
 The dataset consists of 3,405,809 rows and 15 columns.
+
+However, for model implementation we randomly selected a seed of 200,000 rows to utilize for the modeling portion of our data.
+
 Each observation represents a household.
 
 Here are the key variables included in the dataset:\
@@ -82,7 +85,6 @@ dim(data)
 # select the age and the Total Household income as the main columns of interest, then filter based of 18 <= age <= 65 (Thats the only age bracket that is currently working and has other factors effecting income). Also, there is a negative value in household income which doesn't make sense at all, so we filter it out. 
 
 # ask if the filter crashes out after a certain amount on the computer and if we need to shrink the train size
-
 data <- data %>%
   select(AGE, HHINCOME) %>%
   mutate(HHINCOME = as.numeric(HHINCOME), AGE = as.numeric(AGE)) %>%
@@ -92,26 +94,29 @@ data <- data %>%
 
 dim(data)  #if you want to view the two filtered columns
 
-IQR_of_AGE <- IQR(data$AGE)
-IQR_of_HHINCOME <- IQR(data$HHINCOME)
+IQR_of_AGE <- IQR(data$AGE, na.rm = TRUE)
+IQR_of_HHINCOME <- IQR(data$HHINCOME, na.rm = TRUE)
 
 # calculating the upper and lower bounds of both of the data sets to filter the data
-AGE_lower <- quantile(data$AGE, 0.25) - 1.5 * IQR_of_AGE
-AGE_upper <- quantile(data$AGE, 0.75) + 1.5 * IQR_of_AGE
+AGE_lower <- quantile(data$AGE, 0.25, na.rm = TRUE) - 1.5 * IQR_of_AGE
+AGE_upper <- quantile(data$AGE, 0.75, na.rm = TRUE) + 1.5 * IQR_of_AGE
 
-HHINCOME_lower <- quantile(data$HHINCOME, 0.25) - 1.5 * IQR_of_HHINCOME
-HHINCOME_upper <- quantile(data$HHINCOME, 0.75) + 1.5 * IQR_of_HHINCOME
+HHINCOME_lower <- quantile(data$HHINCOME, 0.25, na.rm = TRUE) - 1.5 * IQR_of_HHINCOME
+HHINCOME_upper <- quantile(data$HHINCOME, 0.75, na.rm = TRUE) + 1.5 * IQR_of_HHINCOME
 
 #continue to filter any of the outliers that are presents in the data set
 filtered_data <- data %>%
-  filter(between(AGE, AGE_lower, AGE_upper)) %>%
-  filter(between(HHINCOME, HHINCOME_lower, HHINCOME_upper))
+  filter(AGE >= AGE_lower & AGE <= AGE_upper) %>%
+  filter(HHINCOME >= HHINCOME_lower & HHINCOME <= HHINCOME_upper)
+
+dim(filtered_data) 
 
 ```
 
 ## Original Histogram
 
 ### Age
+We can see in the histogram for Age that there is a relatively normal distribution with no extreme skew or any otliers present at all.
 ```{r}
 ggplot(data, aes(x = AGE)) +
   geom_histogram(binwidth = 5, fill = "blue", color = "black", alpha = 0.7) +
@@ -119,6 +124,7 @@ ggplot(data, aes(x = AGE)) +
   theme_minimal()
 ```
 ### Household Income
+We can see here that pre filtering our data has a very large right skew and an extremly large outlier present in the data set.This is als due to the fact that most individuals earn a relatively modest and moderate incomes. It's likely this data set interviewed a lot of people who come from this category
 ```{r}
 ggplot(data, aes(x = HHINCOME)) +
   geom_histogram(binwidth = 10000, fill = "green", color = "black", alpha = 0.7) +
@@ -129,6 +135,8 @@ ggplot(data, aes(x = HHINCOME)) +
 ## Filtered Histogram
 
 ### AGE
+
+We can see in the histogram for Age that there is a relatively normal distribution with no skew and major outliers. so we have a fairly balanced data set. 
 ```{r}
 ggplot(filtered_data, aes(x = AGE)) +
   geom_histogram(binwidth = 5, fill = "blue", color = "black", alpha = 0.7) +
@@ -136,6 +144,8 @@ ggplot(filtered_data, aes(x = AGE)) +
   theme_minimal()
 ```
 ### Household Income
+
+althought the data set still contains a right skew, The data is alot better of a fit for this instance. There are no extreme outliers and actualy as mentioned before that skew is bound to be prevelant over the individual as most house holds in the data set earn a relatively modest income
 ```{r}
 ggplot(filtered_data, aes(x = HHINCOME)) +
   geom_histogram(binwidth = 10000, fill = "green", color = "black", alpha = 0.7) +
@@ -163,7 +173,11 @@ boxplot(filtered_data$AGE, main = "Boxplot of Filtered Ages", col = "lightblue",
 ```
 ### Household Income
 ```{R}
-boxplot(filtered_data$HHINCOME, main = "Boxplot of Filtered Household Income", col = "lightgreen", ylab = "Household Income")
+# someone edit this box plot for the outlier data that is present here
+boxplot(filtered_data$HHINCOME, main = "Boxplot of Filtered Household Income", col = "lightgreen",
+ylab = "Household Income")
+
+
 ```
 
 #Analysis
@@ -206,6 +220,10 @@ ggplot(test_set, aes(x = predicted_HHI, y = residuals)) +
        y = "Residuals") +
   theme_minimal()
 ```
+We can see from the residual plot that our data is distributed in all directions and doesn't bare any shape; however, looking at the data set, you could see that our majority of the data points are coming below the residual. That means our data has good underestimation ability and the  model does have the tendency for larger over estimation compared to under estimations. It over estimates individual's household income based on the age. 
+
+In summary, This clustering of residuals below the zero line reflects systematic overestimation of earnings of individuals, particularly at earlier ages
+
 
 ###Normal Q-Q Plot
 ```{r}
@@ -215,6 +233,8 @@ ggplot(test_set, aes(sample = residuals)) +
   labs(title = "Normal Q-Q Plot of Residuals") +
   theme_minimal()
 ```
+The Q-Q plot tells us about the normality of our regression model residuals in forecasting an individual's household income in the United States based on age. The points are meant to fall as close as possible to the diagonal line; however, our plot is S-shaped, indicating high skewness in the tails, i.e., income data is highly variable. This gap is likely due to the fact that the data does not suit the linear regression model very well. The points of interest on the plot indicate that household income is not distributed normally, and this may be due to outliers or a non-linear relationship between age and income. 
+
 
 ### Linear Regression with Testing Data
 ```{r}
@@ -228,10 +248,14 @@ ggplot(test_set, aes(x = AGE, y = HHINCOME)) +
   theme_minimal()
 ```
 
+From our model we can see that the linear regression line is an extremely poor fit and infact actually resembles the set up of the residual vs fitted value graphs. This output further suggest that a linear regression model is not appropriate for the data, as the residuals show the lower cluster patterns, and the speratic data points for the testing points appear to fail to encompass the model with any sort of trends.
+
 ### Summary of the Simple Linear Regression Model
 ```{r}
 summary(linear_model)
 ```
+
+From the Residual ranges we can see that the linear model has some very large error when it comes to underestimating and overestimating a US citizens house hold income. Our coefficient for the Age of a person is 33.32 meaning that the model predicts that for every additional year of age, household income increases bu 33.32 dollars on average. this is an extremely small change which can only mean the age alone  is not a very strong depiction of income in our linear model. 
 
 # Model Evaluation and Prediction
 
