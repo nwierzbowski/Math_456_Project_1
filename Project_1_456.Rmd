@@ -12,15 +12,31 @@ We are modeling the linear regression of the Dependent Income, Independent Age i
 
 # Introduction
 
-Our model is a simple linear regression representing the relationship between the feature age and result household income in the United States. For our data we chose to use an extract from IPUMS USA, a database that provides access to census and survey data for research purposes. For our variable selection, we chose individual age and household income; although this selection may seem counterintuitive, we thought it pertinent to avoid bias in contributions to household income stemming from homemaking and dependents. In this data extract household income includes every member’s individual annual incomes added up at time of the census, referring to either their current annual salary or their earnings in the last 12 months. Age is simply their current age at the time of the census, and to avoid issues we filtered our sample to include only 18-65 year olds to capture working age incomes.
-The significance of this relation is its connection to the causes of income inequality in the United States. If income is closely tied to age, this suggests that income inequality is dependent on age bracket and correlated years of experience, providing evidence of a degree of social mobility across class. If this were the case, it may dissipate political will from the lower classes to demand redistributive policies, according to the POUM (prospect of upward mobility) hypothesis advanced by Benanbou and Ok. However, a simple linear regression is definitely not the best tool we could use to analyze this relation, as explained by Solon that due to poor data selection (not analyzing the same households or individuals across many years), and his more advanced model produces a higher correlation between income and intergenerational income (which is a slightly different question that ours). 
-The packages used were ipumsr, dplyr, ggplot2 and caTools. Ipumsr provides an easy interface to access IPUMS data in r and even create extracts. Dplyr provides many useful data manipulation tools, which include such functions as mutate and filter. Ggplot2 provides the tools to easily create graphics representing data and statistics. CaTools provides utility functions for moving window statistics.
-Our results primarily indicate the weakness of the model in relating our two variables, showing close to no correlation between different individuals ages and their incomes. Again, considering the more ideal elements of a similar analysis described by Solon this is not a terribly surprising outcome.
+Our model is a simple linear regression representing the relationship between the feature age and result household income in the United States.
+For our data we chose to use an extract from IPUMS USA, a database that provides access to census and survey data for research purposes.
+For our variable selection, we chose individual age and household income; although this selection may seem counterintuitive, we thought it pertinent to avoid bias in contributions to household income stemming from homemaking and dependents.
+In this data extract household income includes every member’s individual annual incomes added up at time of the census, referring to either their current annual salary or their earnings in the last 12 months.
+Age is simply their current age at the time of the census, and to avoid issues we filtered our sample to include only 18-65 year olds to capture working age incomes.
+The significance of this relation is its connection to the causes of income inequality in the United States.
+If income is closely tied to age, this suggests that income inequality is dependent on age bracket and correlated years of experience, providing evidence of a degree of social mobility across class.
+If this were the case, it may dissipate political will from the lower classes to demand redistributive policies, according to the POUM (prospect of upward mobility) hypothesis advanced by Benanbou and Ok.
+However, a simple linear regression is definitely not the best tool we could use to analyze this relation, as explained by Solon that due to poor data selection (not analyzing the same households or individuals across many years), and his more advanced model produces a higher correlation between income and intergenerational income (which is a slightly different question that ours).
+The packages used were ipumsr, dplyr, ggplot2 and caTools.
+Ipumsr provides an easy interface to access IPUMS data in r and even create extracts.
+Dplyr provides many useful data manipulation tools, which include such functions as mutate and filter.
+Ggplot2 provides the tools to easily create graphics representing data and statistics.
+CaTools provides utility functions for moving window statistics.
+Our results primarily indicate the weakness of the model in relating our two variables, showing close to no correlation between different individuals ages and their incomes.
+Again, considering the more ideal elements of a similar analysis described by Solon this is not a terribly surprising outcome.
 
-Sources cited:
-Steven Ruggles, Sarah Flood, Matthew Sobek, Daniel Backman, Annie Chen, Grace Cooper, Stephanie Richards, Renae Rodgers, and Megan Schouweiler. IPUMS USA: Version 15.0 [dataset]. Minneapolis, MN: IPUMS, 2024. https://doi.org/10.18128/D010.V15.0
-Benabou, Roland, and Efe A. Ok. “Social Mobility and the Demand for Redistribution: The Poum Hypothesis.” The Quarterly Journal of Economics 116, no. 2 (2001): 447–87. http://www.jstor.org/stable/2696470.
-Solon, Gary. “Intergenerational Income Mobility in the United States.” The American Economic Review 82, no. 3 (1992): 393–408. http://www.jstor.org/stable/2117312.
+Sources cited: Steven Ruggles, Sarah Flood, Matthew Sobek, Daniel Backman, Annie Chen, Grace Cooper, Stephanie Richards, Renae Rodgers, and Megan Schouweiler.
+IPUMS USA: Version 15.0 [dataset].
+Minneapolis, MN: IPUMS, 2024.
+<https://doi.org/10.18128/D010.V15.0> Benabou, Roland, and Efe A. Ok. “Social Mobility and the Demand for Redistribution: The Poum Hypothesis.” The Quarterly Journal of Economics 116, no. 2 (2001): 447–87.
+<http://www.jstor.org/stable/2696470>.
+Solon, Gary.
+“Intergenerational Income Mobility in the United States.” The American Economic Review 82, no. 3 (1992): 393–408.
+<http://www.jstor.org/stable/2117312>.
 
 ## Installing the R-packages
 
@@ -180,17 +196,19 @@ ggplot(filtered_data, aes(x = HHINCOME)) +
 ## Box Plots of original data
 
 ### AGE
+
 ```{R}
 boxplot(data$AGE, main = "Boxplot of Age", col = "lightblue", ylab = "Age")
 ```
 
 ### Household Income
+
 ```{R}
 boxplot(data$HHINCOME, main = "Boxplot of Household Income", col = "lightgreen", ylab = "Household Income", ylim = c(0, 1000000))
 ```
 
-
 # Analysis
+
 ```{r}
 # modifying data into a training set and a testing set
 set.seed(1)
@@ -217,19 +235,20 @@ test_set$residuals <- test_set$HHINCOME - test_set$predicted_HHI
 linear_model
 ```
 
-For the data set, we implemented 98% of filtered data options goes towards training our model. The large percentage was used due to the Extreme scale of data we are implementing. The Testing set implemented 2% of the data and we implemented for the testing and assessment of our regression algorithm. 
+For the data set, we implemented 98% of filtered data options goes towards training our model.
+The large percentage was used due to the Extreme scale of data we are implementing.
+The Testing set implemented 2% of the data and we implemented for the testing and assessment of our regression algorithm.
 
-Thus Through our training data we get the The follwing regression model
-$$
+Thus Through our training data we get the The follwing regression model $$
 HHINCOME = 115580.53 + 33.32 \times AGE
-$$
-$$ 
+$$ $$ 
 y = 115580.53 + 33.32 x_1
 $$
 
 ## Implementing the Plots
 
 ### Linear Regression with Training Data
+
 ```{r}
 plot(train_set$AGE, train_set$HHINCOME, main="HHINCOME vs AGE", xlab="Age", ylab="Household Income")
 
@@ -240,10 +259,14 @@ model <- lm(HHINCOME ~ AGE, data = train_set)
 abline(model, col="red")
 
 ```
-We can see with the diaganol with the original training set is that it is almost impossible to deter how good of a fit the line is. There are simply to many points in the model to decipher a strong linear regression.
+
+We can see with the diaganol with the original training set is that it is almost impossible to deter how good of a fit the line is.
+There are simply to many points in the model to decipher a strong linear regression.
 
 ### Linear Regression with Testing Data
+
 This plot is also referenced in the next session for further assesment.
+
 ```{r}
 
 plot(test_set$AGE, test_set$HHINCOME, main="HHINCOME vs AGE", xlab="Age", ylab="Household Income")
@@ -269,16 +292,11 @@ From the Residual ranges we can see that the linear model has some very large er
 Our coefficient for the Age of a person is 33.32 meaning that the model predicts that for every additional year of age, household income increases by 33.32 dollars on average.
 this is an extremely small change which can only mean the age alone is not a very strong depiction of income in our linear model.
 
-
-With this Our predicted linear equation is 
+With this Our predicted linear equation is
 
 # Model Evaluation and Prediction
 
 ### Model Assessment
-
-**Residual Analysis:** - **Residual vs. Fitted Values Plot:** The plot shows how residuals are distributed.
-Ideally, they should be randomly scattered around the horizontal axis.**Normal Q-Q Plot:** The Q-Q plot assesses if the residuals follow a normal distribution.
-Any systematic departures from the diagonal line suggest non-normality.
 
 ```{r}
 ggplot(test_set, aes(x = predicted_HHI, y = residuals)) +
@@ -290,6 +308,21 @@ ggplot(test_set, aes(x = predicted_HHI, y = residuals)) +
   theme_minimal()
 ```
 
+Observe this Residuals vs. Fitted Values plot.
+
+The first thing we need to consider is whether the residuals are randomly distributed around the zero line.
+Here there are clearly more points below the line than above.
+This means that our model is likely to overestimate household income and isn't doing a good job.
+
+The second consideration is the pattern of the residuals.
+The fact that the residuals appear with in a higher density towards the bottom points towards our model not being a good fit.
+
+The third consideration is the spread of the residuals across the range of the fitted values.
+This appears to be good since the graph is horizontally consistent.
+
+The final consideration is if there are any outliers.
+We already filtered the data for outliers so this is not a problem here.
+
 ```{r}
 ggplot(test_set, aes(sample = residuals)) +
   stat_qq() +
@@ -297,6 +330,13 @@ ggplot(test_set, aes(sample = residuals)) +
   labs(title = "Normal Q-Q Plot of Residuals") +
   theme_minimal()
 ```
+
+The Q-Q plot shown here is meant to help us see how normal our data is.
+If the points fall close to the diagonal line, it is normally distributed.
+If the data falls far from the line, it is not normally distributed.
+In this case, the plot shows significant deviations from the line, especially in the tails, indicating that the residuals are not normally distributed.
+This non-normality suggests potential issues with the model, such as missing important predictor variables, the presence of outliers, or non-linearity in the data.
+Consequently, the assumption of normally distributed residuals is violated, which can impact the reliability of certain statistical tests and confidence intervals.
 
 **Goodness-of-Fit:** - **R-squared Value:** Indicates the proportion of variance in the dependent variable explained by the model.
 - **Adjusted R-squared Value:** Adjusted for the number of predictors in the model.
