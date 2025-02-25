@@ -116,15 +116,21 @@ dim(filtered_data)
 ## Original Histogram
 
 ### Age
+
 We can see in the histogram for Age that there is a relatively normal distribution with no extreme skew or any otliers present at all.
+
 ```{r}
 ggplot(data, aes(x = AGE)) +
   geom_histogram(binwidth = 5, fill = "blue", color = "black", alpha = 0.7) +
   labs(title = "Distribution of Age", x = "Age", y = "Frequency") +
   theme_minimal()
 ```
+
 ### Household Income
-We can see here that pre filtering our data has a very large right skew and an extremly large outlier present in the data set.This is als due to the fact that most individuals earn a relatively modest and moderate incomes. It's likely this data set interviewed a lot of people who come from this category
+
+We can see here that pre filtering our data has a very large right skew and an extremly large outlier present in the data set.This is als due to the fact that most individuals earn a relatively modest and moderate incomes.
+It's likely this data set interviewed a lot of people who come from this category
+
 ```{r}
 ggplot(data, aes(x = HHINCOME)) +
   geom_histogram(binwidth = 10000, fill = "green", color = "black", alpha = 0.7) +
@@ -136,16 +142,21 @@ ggplot(data, aes(x = HHINCOME)) +
 
 ### AGE
 
-We can see in the histogram for Age that there is a relatively normal distribution with no skew and major outliers. so we have a fairly balanced data set. 
+We can see in the histogram for Age that there is a relatively normal distribution with no skew and major outliers.
+so we have a fairly balanced data set.
+
 ```{r}
 ggplot(filtered_data, aes(x = AGE)) +
   geom_histogram(binwidth = 5, fill = "blue", color = "black", alpha = 0.7) +
   labs(title = "Distribution of Age", x = "Age", y = "Frequency") +
   theme_minimal()
 ```
+
 ### Household Income
 
-althought the data set still contains a right skew, The data is alot better of a fit for this instance. There are no extreme outliers and actualy as mentioned before that skew is bound to be prevelant over the individual as most house holds in the data set earn a relatively modest income
+althought the data set still contains a right skew, The data is alot better of a fit for this instance.
+There are no extreme outliers and actualy as mentioned before that skew is bound to be prevelant over the individual as most house holds in the data set earn a relatively modest income
+
 ```{r}
 ggplot(filtered_data, aes(x = HHINCOME)) +
   geom_histogram(binwidth = 10000, fill = "green", color = "black", alpha = 0.7) +
@@ -156,11 +167,13 @@ ggplot(filtered_data, aes(x = HHINCOME)) +
 ## Orignal Box Plots
 
 ### AGE
+
 ```{R}
 boxplot(data$AGE, main = "Boxplot of Age", col = "lightblue", ylab = "Age")
 ```
 
 ### Household Income
+
 ```{R}
 boxplot(data$HHINCOME, main = "Boxplot of Household Income", col = "lightgreen", ylab = "Household Income")
 ```
@@ -168,10 +181,13 @@ boxplot(data$HHINCOME, main = "Boxplot of Household Income", col = "lightgreen",
 ## Filtered Box Plots
 
 ### AGE
+
 ```{R}
 boxplot(filtered_data$AGE, main = "Boxplot of Filtered Ages", col = "lightblue", ylab = "Age")
 ```
+
 ### Household Income
+
 ```{R}
 # someone edit this box plot for the outlier data that is present here
 boxplot(filtered_data$HHINCOME, main = "Boxplot of Filtered Household Income", col = "lightgreen",
@@ -181,6 +197,7 @@ ylab = "Household Income")
 ```
 
 #Analysis
+
 ```{r}
 # modifying data into a training set and a testing set
 set.seed(1)
@@ -211,6 +228,7 @@ test_set$residuals <- test_set$HHINCOME - test_set$predicted_HHI
 ## Implementing the Plots
 
 ### Risidual vs. Fitted Values Plot
+
 ```{r}
 ggplot(test_set, aes(x = predicted_HHI, y = residuals)) +
   geom_point(alpha = 0.5, color = 'black') +
@@ -220,12 +238,15 @@ ggplot(test_set, aes(x = predicted_HHI, y = residuals)) +
        y = "Residuals") +
   theme_minimal()
 ```
-We can see from the residual plot that our data is distributed in all directions and doesn't bare any shape; however, looking at the data set, you could see that our majority of the data points are coming below the residual. That means our data has good underestimation ability and the  model does have the tendency for larger over estimation compared to under estimations. It over estimates individual's household income based on the age. 
+
+We can see from the residual plot that our data is distributed in all directions and doesn't bare any shape; however, looking at the data set, you could see that our majority of the data points are coming below the residual.
+That means our data has good underestimation ability and the model does have the tendency for larger over estimation compared to under estimations.
+It over estimates individual's household income based on the age.
 
 In summary, This clustering of residuals below the zero line reflects systematic overestimation of earnings of individuals, particularly at earlier ages
 
-
 ###Normal Q-Q Plot
+
 ```{r}
 ggplot(test_set, aes(sample = residuals)) +
   stat_qq() +
@@ -233,10 +254,14 @@ ggplot(test_set, aes(sample = residuals)) +
   labs(title = "Normal Q-Q Plot of Residuals") +
   theme_minimal()
 ```
-The Q-Q plot tells us about the normality of our regression model residuals in forecasting an individual's household income in the United States based on age. The points are meant to fall as close as possible to the diagonal line; however, our plot is S-shaped, indicating high skewness in the tails, i.e., income data is highly variable. This gap is likely due to the fact that the data does not suit the linear regression model very well. The points of interest on the plot indicate that household income is not distributed normally, and this may be due to outliers or a non-linear relationship between age and income. 
 
+The Q-Q plot tells us about the normality of our regression model residuals in forecasting an individual's household income in the United States based on age.
+The points are meant to fall as close as possible to the diagonal line; however, our plot is S-shaped, indicating high skewness in the tails, i.e., income data is highly variable.
+This gap is likely due to the fact that the data does not suit the linear regression model very well.
+The points of interest on the plot indicate that household income is not distributed normally, and this may be due to outliers or a non-linear relationship between age and income.
 
 ### Linear Regression with Testing Data
+
 ```{r}
 ggplot(test_set, aes(x = AGE, y = HHINCOME)) +
   geom_point(alpha = 0.3, color = "red") +  # Scatter plot of data points
@@ -248,16 +273,92 @@ ggplot(test_set, aes(x = AGE, y = HHINCOME)) +
   theme_minimal()
 ```
 
-From our model we can see that the linear regression line is an extremely poor fit and infact actually resembles the set up of the residual vs fitted value graphs. This output further suggest that a linear regression model is not appropriate for the data, as the residuals show the lower cluster patterns, and the speratic data points for the testing points appear to fail to encompass the model with any sort of trends.
+From our model we can see that the linear regression line is an extremely poor fit and infact actually resembles the set up of the residual vs fitted value graphs.
+This output further suggest that a linear regression model is not appropriate for the data, as the residuals show the lower cluster patterns, and the speratic data points for the testing points appear to fail to encompass the model with any sort of trends.
 
 ### Summary of the Simple Linear Regression Model
+
 ```{r}
 summary(linear_model)
 ```
 
-From the Residual ranges we can see that the linear model has some very large error when it comes to underestimating and overestimating a US citizens house hold income. Our coefficient for the Age of a person is 33.32 meaning that the model predicts that for every additional year of age, household income increases bu 33.32 dollars on average. this is an extremely small change which can only mean the age alone  is not a very strong depiction of income in our linear model. 
+From the Residual ranges we can see that the linear model has some very large error when it comes to underestimating and overestimating a US citizens house hold income.
+Our coefficient for the Age of a person is 33.32 meaning that the model predicts that for every additional year of age, household income increases bu 33.32 dollars on average.
+this is an extremely small change which can only mean the age alone is not a very strong depiction of income in our linear model.
 
 # Model Evaluation and Prediction
+
+### Model Assessment
+
+**Residual Analysis:** - **Residual vs. Fitted Values Plot:** The plot shows how residuals are distributed.
+Ideally, they should be randomly scattered around the horizontal axis.**Normal Q-Q Plot:** The Q-Q plot assesses if the residuals follow a normal distribution.
+Any systematic departures from the diagonal line suggest non-normality.
+
+```{r}
+ggplot(test_set, aes(x = predicted_HHI, y = residuals)) +
+  geom_point(alpha = 0.5, color = 'black') +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  labs(title = "Residuals vs. Fitted Values",
+       x = "Fitted Values",
+       y = "Residuals") +
+  theme_minimal()
+```
+
+```{r}
+ggplot(test_set, aes(sample = residuals)) +
+  stat_qq() +
+  stat_qq_line() +
+  labs(title = "Normal Q-Q Plot of Residuals") +
+  theme_minimal()
+```
+
+**Goodness-of-Fit:** - **R-squared Value:** Indicates the proportion of variance in the dependent variable explained by the model.
+- **Adjusted R-squared Value:** Adjusted for the number of predictors in the model.
+
+```{r}
+adjusted_r_squared <- summary(linear_model)$r.squared
+adjusted_r_squared
+
+```
+
+```{r}
+adjusted_r_squared <- summary(linear_model)$adj.r.squared
+adjusted_r_squared
+
+```
+
+### Model Accuracy
+
+**Error Metrics:** - **Mean Absolute Error (MAE):** Measures the average magnitude of errors without considering their direction.
+- **Mean Squared Error (MSE):** Measures the average squared difference between actual and predicted values.
+- **Root Mean Squared Error (RMSE):** Provides error in the same units as the response variable.
+- **Mean Absolute Percentage Error (MAPE):** Indicates accuracy as a percentage.
+
+```{r}
+residuals <- as.vector(residuals)
+mse <- mean(residuals^2)
+mse
+
+
+```
+
+### Prediction
+
+**Prediction vs. Actual Plot:**
+
+```{r}
+
+ggplot(test_set, aes(x = AGE, y = HHINCOME)) +
+  geom_point(alpha = 0.3, color = "red") +  # Scatter plot of data points
+  geom_smooth(method = "lm", color = "Navy", se = FALSE) +  # Regression line
+  labs(title = "Linear Regression: House Hold Income vs Age",
+       x = "Age of Person",
+       y = "Total House Hold Income") +
+  scale_y_continuous(labels = scales::comma)
+  theme_minimal()
+
+
+```
 
 # Conclusion and Summary
 
