@@ -29,15 +29,6 @@ CaTools provides utility functions for moving window statistics.
 Our results primarily indicate the weakness of the model in relating our two variables, showing close to no correlation between different individuals ages and their incomes.
 Again, considering the more ideal elements of a similar analysis described by Solon this is not a terribly surprising outcome.
 
-Sources cited: Steven Ruggles, Sarah Flood, Matthew Sobek, Daniel Backman, Annie Chen, Grace Cooper, Stephanie Richards, Renae Rodgers, and Megan Schouweiler.
-IPUMS USA: Version 15.0 [dataset].
-Minneapolis, MN: IPUMS, 2024.
-<https://doi.org/10.18128/D010.V15.0> Benabou, Roland, and Efe A. Ok. “Social Mobility and the Demand for Redistribution: The Poum Hypothesis.” The Quarterly Journal of Economics 116, no. 2 (2001): 447–87.
-<http://www.jstor.org/stable/2696470>.
-Solon, Gary.
-“Intergenerational Income Mobility in the United States.” The American Economic Review 82, no. 3 (1992): 393–408.
-<http://www.jstor.org/stable/2117312>.
-
 ## Installing the R-packages
 
 ```{r, include = FALSE }
@@ -392,3 +383,21 @@ points(test_set$AGE, predictions, col="red", pch=19)
 # Conclusion and Summary
 
 # Reference
+
+Sources cited: 
+
+#1 
+Steven Ruggles, Sarah Flood, Matthew Sobek, Daniel Backman, Annie Chen, Grace Cooper, Stephanie Richards, Renae Rodgers, and Megan Schouweiler.
+IPUMS USA: Version 15.0 [dataset]
+Minneapolis, MN: IPUMS, 2024.
+<https://doi.org/10.18128/D010.V15.0>
+
+#2
+Benabou, Roland, and Efe A. Ok. “Social Mobility and the Demand for Redistribution: The Poum Hypothesis.” The Quarterly Journal of Economics 116, no. 2 (2001): 447–87.
+<http://www.jstor.org/stable/2696470>.
+
+#3
+Solon, Gary.
+“Intergenerational Income Mobility in the United States.” The American Economic Review 82, no. 3 (1992): 393–408.
+<http://www.jstor.org/stable/2117312>.
+
