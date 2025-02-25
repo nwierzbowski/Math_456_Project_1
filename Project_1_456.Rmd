@@ -1,6 +1,6 @@
 ---
 title: "Project_1_456"
-author: "Anthony Yasan, Preston O'Connor, Khoa Dao"
+author: "Anthony Yasan, Preston O'Connor, Khoa Dao, Matthew Jacob"
 date: "2025-02-20"
 output: pdf_document
 editor_options: 
