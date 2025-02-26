@@ -1,5 +1,5 @@
 ---
-title: "Project_1_456"
+title: "Relation between Age and Household Income"
 author: "Anthony Yasan, Preston O'Connor, Khoa Dao, Matthew Jacob, Nick Wierzbowski"
 date: "2025-02-26"
 output: pdf_document
