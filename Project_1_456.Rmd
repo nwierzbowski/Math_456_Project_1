@@ -1,7 +1,7 @@
 ---
 title: "Project_1_456"
 author: "Anthony Yasan, Preston O'Connor, Khoa Dao, Matthew Jacob"
-date: "2025-02-20"
+date: "2025-02-26"
 output: pdf_document
 editor_options: 
   markdown: 
@@ -14,9 +14,9 @@ We are modeling the linear regression of the Dependent Income, Independent Age i
 
 Our model is a simple linear regression representing the relationship between the feature age and result household income in the United States.
 For our data we chose to use an extract from IPUMS USA, a database that provides access to census and survey data for research purposes.
-For our variable selection, we chose individual age and household income; although this selection may seem counterintuitive, we thought it pertinent to avoid bias in contributions to household income stemming from homemaking and dependents.
+For our variable selection, we chose individual age and household income; although this selection may seem counter intuitive, we thought it pertinent to avoid bias in contributions to household income stemming from homemaking and dependents.
 In this data extract household income includes every member’s individual annual incomes added up at time of the census, referring to either their current annual salary or their earnings in the last 12 months.
-Age is simply their current age at the time of the census, and to avoid issues we filtered our sample to include only 18-65 year olds to capture working age incomes.
+Age is simply their current age at the time of the census, and to avoid issues we filtered our sample to include only 18-65 year old individuals to capture working age incomes.
 The significance of this relation is its connection to the causes of income inequality in the United States.
 If income is closely tied to age, this suggests that income inequality is dependent on age bracket and correlated years of experience, providing evidence of a degree of social mobility across class.
 If this were the case, it may dissipate political will from the lower classes to demand redistributive policies, according to the POUM (prospect of upward mobility) hypothesis advanced by Benanbou and Ok.
@@ -36,13 +36,13 @@ Again, considering the more ideal elements of a similar analysis described by So
 #install.packages("ipumsr") # for the data set
 #install.packages("dplyr") # for the data set
 #install.packages("caTools") # use this for the set seed of the training set
-#install.packages("ggplot2") 
+#install.packages("ggplot2") # graph and display data
 
 # Code to implement the R packages
-library(ipumsr) # implemented to get our data set
+library(ipumsr) 
 library(dplyr)
-library(ggplot2) # Visiual display of the Graphs and modes implemented
-library(caTools) # make specifics seeds and data sets for our overall test and our testing with 
+library(ggplot2) 
+library(caTools) 
 ```
 
 # Data description
@@ -53,7 +53,7 @@ It contains demographic and economic data at both household and individual level
 
 The dataset consists of 3,405,809 rows and 15 columns.
 
-However, for model implementation we randomly selected a seed of 200,000 rows to utilize for the modeling portion of our data.
+However, for model implementation we randomly selected a seed of 200,000 rows to utilize for efficiency and for the modeling portion of our data.
 
 Each observation represents a household.
 
@@ -87,7 +87,7 @@ summary(data)
 
 ```{r}
 #View(data)
-#The Code struggles to run the data set with 2 million points is two extensive to run
+#The Code struggles to run the data set with 2 million points is two extensive to run, So select a random sample of 200,000 points
 set.seed(11)
 
 s <- sample(1:nrow(data), size = 200000)
@@ -108,21 +108,20 @@ data <- data %>%
   filter(!is.na(HHINCOME), !is.na(AGE)) %>%
   filter(between(AGE, 18, 65)) %>%
   filter(HHINCOME > 0)
-# check and see the data we are implementing for the model that we are actually incorperating after the generic age filter
 
 dim(data)  #if you want to view the two filtered columns
 
 IQR_of_AGE <- IQR(data$AGE, na.rm = TRUE)
 IQR_of_HHINCOME <- IQR(data$HHINCOME, na.rm = TRUE)
 
-# calculating the upper and lower bounds of both of the data sets to filter the data
+
 AGE_lower <- quantile(data$AGE, 0.25, na.rm = TRUE) - 1.5 * IQR_of_AGE
 AGE_upper <- quantile(data$AGE, 0.75, na.rm = TRUE) + 1.5 * IQR_of_AGE
 
 HHINCOME_lower <- quantile(data$HHINCOME, 0.25, na.rm = TRUE) - 1.5 * IQR_of_HHINCOME
 HHINCOME_upper <- quantile(data$HHINCOME, 0.75, na.rm = TRUE) + 1.5 * IQR_of_HHINCOME
 
-#continue to filter any of the outliers that are presents in the data set
+#continue to filter any of the outliers
 filtered_data <- data %>%
   filter(AGE >= AGE_lower & AGE <= AGE_upper)%>%
     filter(HHINCOME >= HHINCOME_lower & HHINCOME <= HHINCOME_upper)
@@ -149,7 +148,7 @@ ggplot(data, aes(x = AGE)) +
 
 We can see here that pre-filtering our data has a very large right skew and an extremely large outlier present in the data set.This is due to the fact that most individuals earn a relatively modest and moderate incomes.
 
-It's likely this data set interviewed a lot of people who come from this category
+It's likely this data set interviewed a lot of households who come from this category.
 
 ```{r}
 ggplot(data, aes(x = HHINCOME)) +
@@ -226,13 +225,17 @@ test_set$residuals <- test_set$HHINCOME - test_set$predicted_HHI
 linear_model
 ```
 
-For the data set, we implemented 98% of filtered data options goes towards training our model.
+For the data set, we implemented 98% (103,723 points) of filtered data options goes towards training our model.
 The large percentage was used due to the Extreme scale of data we are implementing.
-The Testing set implemented 2% of the data and we implemented for the testing and assessment of our regression algorithm.
+The Testing set implemented 2% (1,660 points) of the data and we implemented for the testing and assessment of our regression algorithm.
 
-Thus Through our training data we get the The follwing regression model $$
+Thus Through our training data we get the The following regression model 
+$$
 HHINCOME = 115580.53 + 33.32 \times AGE
-$$ $$ 
+$$ 
+Which we can streamline down into the following linear regression problem
+
+$$ 
 y = 115580.53 + 33.32 x_1
 $$
 
@@ -256,7 +259,7 @@ There are simply to many points in the model to decipher a strong linear regress
 
 ### Linear Regression with Testing Data
 
-This plot is also referenced in the next session for further assesment.
+This plot is also referenced in the next session for further assessment.
 
 ```{r}
 
@@ -271,7 +274,8 @@ abline(model, col="red")
 ```
 
 From our model we can see that the linear regression line is an extremely poor fit and in fact actually resembles the set up of the residual vs fitted value graphs.
-This output further suggest that a linear regression model is not appropriate for the data, as the residuals show the lower cluster patterns, and the seperate data points for the testing points appear to fail to encompass the model with any sort of trends.
+
+This output further suggest that a linear regression model is not appropriate for the data, as the residuals show the lower cluster patterns, and the separate data points for the testing points appear to fail to encompass the model with any sort of trends.
 
 ### Summary of the Simple Linear Regression Model
 
@@ -337,12 +341,15 @@ adjusted_r_squared <- summary(linear_model)$r.squared
 adjusted_r_squared
 
 ```
+From our extremely low R-sqaured Value, we can conclude that AGE in this instance has no Variability in household income. In other words, Age and house hold income's relationship is extremely week
+
 
 ```{r}
 adjusted_r_squared <- summary(linear_model)$adj.r.squared
 adjusted_r_squared
 
 ```
+While using the adjusted R-squared model to prevent overfitting of the data, we can see that the data is relatively close to our initial R-sqaured. Due to the fact the simple linear regression model uses only one independent variable, this would lead to a simaler range in output.this reinforces our interpretation of the age variable not being a significant influence on the household income.
 
 ### Model Accuracy
 
@@ -355,32 +362,41 @@ adjusted_r_squared
 r <- as.vector(test_set$residuals)
 mse <- mean(r^2)
 mse
-# r <- as.numeric(test_set$residuals)
-# mse <- mean((r)^2)
-# mse
+
 
 ```
+The Mean Squared Error displays an extremely high number.this means there is a large difference between the predicted output of a actual and predicted output of someone's income.The output further enforces the inadequacy of the linear regression model.
 
 ### Prediction
 
 **Prediction vs. Actual Plot:**
 
 ```{r}
-#
-model <- lm(HHINCOME ~ AGE, data = train_set)
-
-# Predict HHINCOME on the test set using the model
-predictions <- predict(model, newdata = test_set)
-
-# Plot: Actual HHINCOME vs. Predicted HHINCOME
 plot(test_set$AGE, test_set$HHINCOME, main="Prediction vs Actual", 
-     xlab="Age", ylab="Household Income", pch=19, col="blue") # Actual data points
-points(test_set$AGE, predictions, col="red", pch=19)
+     xlab="Age", ylab="Household Income", pch=16, col="blue")
+
+# add linear regression model
+model <- lm(HHINCOME ~ AGE, data = train_set)
+abline(model, col="red", lwd=3)
+
 
 
 ```
 
 # Conclusion and Summary
+
+Our simple linear regression model for the Comparison of United States Household income and resident age from the IPUM USA data. WE were able to derive a linear regression model from a training set of 103,723 points to derive the Equation below.
+$$
+HHINCOME = 115580.53 + 33.32 \times AGE
+$$
+This equation indicates that the increase in a person's age in the discrete model had an almost negligible effect on the amount they could contribute to their household income. This suggests that, overall, there is minimal income growth on a yearly basis for individuals. Our R-squared value of 3.51e-05 and adjusted R-squared value of 2.54e-05 show that this model had almost no correlation at all with the testing set. This was also reflected in the graph of the derived regression equation and the actual predicted values, which followed no discernible trends and resembled a residual plot more than an actual regression model. Our mean squared error, which resulted in approximately 4.89 billion, highlights the presence of extreme outliers and significant differences between our predicted and actual values. Through our residual fitted values we can further visualize that the regression model very rarely ever comes close to predicting the actual value of a lot of our points. When we start to map out the Q-Q plot we also notice that there is a week linear correlation on the diagonal and that the data set is has alot of outliers present on the lower and the upper portions of our model with these heavier tails. 
+
+A positive outcome from this model is that it establishes a baseline comparison for future improvements in the modeling process. This model allows us to explore different mathematical modeling approaches and refine our data processing methods for a more optimal setup. Additionally, the residual-based calculations emphasized the need to reconsider our original data selection, suggesting that household income may have a much stronger correlation with other independent variables present in the data set.
+
+The model also has drawbacks. The large data set made it difficult to perform an efficient analysis without long computing times, requiring us to reduce the data size and introduce a seed. Although this was done through a randomized selection approach, it may have affected the selection of appropriate data. Furthermore, the data set exhibited potential bias, as a significant portion of those surveyed came from modest to lower-income households, leading to a skewed data set.
+
+Regardless of how we interpret our findings, it is evident that moving to another modeling approach is necessary to better understand the factors affecting household income in the United States. Given the limitations of simple linear regression, a multivariate linear regression model would be a more optimal approach, allowing us to incorporate additional variables to enable predictive accuracy. Additionally, having access to more dynamic and optimal testing methods, including Cross Validation selection, F-tests, Residual Error Independence and many more testing methods , will enable us to build a more robust and efficient model. By refining our techniques, we can develop a stronger predictive model that better represents the complexities of household income distribution.
+
 
 # Reference
 
