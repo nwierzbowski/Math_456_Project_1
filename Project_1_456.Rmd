@@ -229,11 +229,9 @@ For the data set, we implemented 98% (103,723 points) of filtered data options g
 The large percentage was used due to the Extreme scale of data we are implementing.
 The Testing set implemented 2% (1,660 points) of the data and we implemented for the testing and assessment of our regression algorithm.
 
-Thus Through our training data we get the The following regression model 
-$$
+Thus Through our training data we get the The following regression model $$
 HHINCOME = 115580.53 + 33.32 \times AGE
-$$ 
-Which we can streamline down into the following linear regression problem
+$$ Which we can streamline down into the following linear regression problem
 
 $$ 
 y = 115580.53 + 33.32 x_1
@@ -341,22 +339,22 @@ adjusted_r_squared <- summary(linear_model)$r.squared
 adjusted_r_squared
 
 ```
-From our extremely low R-sqaured Value, we can conclude that AGE in this instance has no Variability in household income. In other words, Age and house hold income's relationship is extremely week
 
+From our extremely low R-sqaured Value, we can conclude that AGE in this instance has no Variability in household income.
+In other words, Age and house hold income's relationship is extremely week
 
 ```{r}
 adjusted_r_squared <- summary(linear_model)$adj.r.squared
 adjusted_r_squared
 
 ```
-While using the adjusted R-squared model to prevent overfitting of the data, we can see that the data is relatively close to our initial R-sqaured. Due to the fact the simple linear regression model uses only one independent variable, this would lead to a simaler range in output.this reinforces our interpretation of the age variable not being a significant influence on the household income.
+
+While using the adjusted R-squared model to prevent overfitting of the data, we can see that the data is relatively close to our initial R-sqaured.
+Due to the fact the simple linear regression model uses only one independent variable, this would lead to a simaler range in output.this reinforces our interpretation of the age variable not being a significant influence on the household income.
 
 ### Model Accuracy
 
-**Error Metrics:** - **Mean Absolute Error (MAE):** Measures the average magnitude of errors without considering their direction.
-- **Mean Squared Error (MSE):** Measures the average squared difference between actual and predicted values.
-- **Root Mean Squared Error (RMSE):** Provides error in the same units as the response variable.
-- **Mean Absolute Percentage Error (MAPE):** Indicates accuracy as a percentage.
+**Error Metrics:** - **Mean Squared Error (MSE):** Measures the average squared difference between actual and predicted values.
 
 ```{r}
 r <- as.vector(test_set$residuals)
@@ -365,6 +363,7 @@ mse
 
 
 ```
+
 The Mean Squared Error displays an extremely high number.this means there is a large difference between the predicted output of a actual and predicted output of someone's income.The output further enforces the inadequacy of the linear regression model.
 
 ### Prediction
@@ -385,35 +384,43 @@ abline(model, col="red", lwd=3)
 
 # Conclusion and Summary
 
-Our simple linear regression model for the Comparison of United States Household income and resident age from the IPUM USA data. WE were able to derive a linear regression model from a training set of 103,723 points to derive the Equation below.
+Our simple linear regression model for the Comparison of United States Household income and resident age from the IPUM USA data.
+WE were able to derive a linear regression model from a training set of 103,723 points to derive the Equation below.
 $$
 HHINCOME = 115580.53 + 33.32 \times AGE
-$$
-This equation indicates that the increase in a person's age in the discrete model had an almost negligible effect on the amount they could contribute to their household income. This suggests that, overall, there is minimal income growth on a yearly basis for individuals. Our R-squared value of 3.51e-05 and adjusted R-squared value of 2.54e-05 show that this model had almost no correlation at all with the testing set. This was also reflected in the graph of the derived regression equation and the actual predicted values, which followed no discernible trends and resembled a residual plot more than an actual regression model. Our mean squared error, which resulted in approximately 4.89 billion, highlights the presence of extreme outliers and significant differences between our predicted and actual values. Through our residual fitted values we can further visualize that the regression model very rarely ever comes close to predicting the actual value of a lot of our points. When we start to map out the Q-Q plot we also notice that there is a week linear correlation on the diagonal and that the data set is has alot of outliers present on the lower and the upper portions of our model with these heavier tails. 
+$$ This equation indicates that the increase in a person's age in the discrete model had an almost negligible effect on the amount they could contribute to their household income.
+This suggests that, overall, there is minimal income growth on a yearly basis for individuals.
+Our R-squared value of 3.51e-05 and adjusted R-squared value of 2.54e-05 show that this model had almost no correlation at all with the testing set.
+This was also reflected in the graph of the derived regression equation and the actual predicted values, which followed no discernible trends and resembled a residual plot more than an actual regression model.
+Our mean squared error, which resulted in approximately 4.89 billion, highlights the presence of extreme outliers and significant differences between our predicted and actual values.
+Through our residual fitted values we can further visualize that the regression model very rarely ever comes close to predicting the actual value of a lot of our points.
+When we start to map out the Q-Q plot we also notice that there is a week linear correlation on the diagonal and that the data set is has alot of outliers present on the lower and the upper portions of our model with these heavier tails.
 
-A positive outcome from this model is that it establishes a baseline comparison for future improvements in the modeling process. This model allows us to explore different mathematical modeling approaches and refine our data processing methods for a more optimal setup. Additionally, the residual-based calculations emphasized the need to reconsider our original data selection, suggesting that household income may have a much stronger correlation with other independent variables present in the data set.
+A positive outcome from this model is that it establishes a baseline comparison for future improvements in the modeling process.
+This model allows us to explore different mathematical modeling approaches and refine our data processing methods for a more optimal setup.
+Additionally, the residual-based calculations emphasized the need to reconsider our original data selection, suggesting that household income may have a much stronger correlation with other independent variables present in the data set.
 
-The model also has drawbacks. The large data set made it difficult to perform an efficient analysis without long computing times, requiring us to reduce the data size and introduce a seed. Although this was done through a randomized selection approach, it may have affected the selection of appropriate data. Furthermore, the data set exhibited potential bias, as a significant portion of those surveyed came from modest to lower-income households, leading to a skewed data set.
+The model also has drawbacks.
+The large data set made it difficult to perform an efficient analysis without long computing times, requiring us to reduce the data size and introduce a seed.
+Although this was done through a randomized selection approach, it may have affected the selection of appropriate data.
+Furthermore, the data set exhibited potential bias, as a significant portion of those surveyed came from modest to lower-income households, leading to a skewed data set.
 
-Regardless of how we interpret our findings, it is evident that moving to another modeling approach is necessary to better understand the factors affecting household income in the United States. Given the limitations of simple linear regression, a multivariate linear regression model would be a more optimal approach, allowing us to incorporate additional variables to enable predictive accuracy. Additionally, having access to more dynamic and optimal testing methods, including Cross Validation selection, F-tests, Residual Error Independence and many more testing methods , will enable us to build a more robust and efficient model. By refining our techniques, we can develop a stronger predictive model that better represents the complexities of household income distribution.
-
+Regardless of how we interpret our findings, it is evident that moving to another modeling approach is necessary to better understand the factors affecting household income in the United States.
+Given the limitations of simple linear regression, a multivariate linear regression model would be a more optimal approach, allowing us to incorporate additional variables to enable predictive accuracy.
+Additionally, having access to more dynamic and optimal testing methods, including Cross Validation selection, F-tests, Residual Error Independence and many more testing methods , will enable us to build a more robust and efficient model.
+By refining our techniques, we can develop a stronger predictive model that better represents the complexities of household income distribution.
 
 # Reference
 
-Sources cited: 
+Sources cited:
 
-#1 
-Steven Ruggles, Sarah Flood, Matthew Sobek, Daniel Backman, Annie Chen, Grace Cooper, Stephanie Richards, Renae Rodgers, and Megan Schouweiler.
-IPUMS USA: Version 15.0 [dataset]
-Minneapolis, MN: IPUMS, 2024.
+#1 Steven Ruggles, Sarah Flood, Matthew Sobek, Daniel Backman, Annie Chen, Grace Cooper, Stephanie Richards, Renae Rodgers, and Megan Schouweiler.
+IPUMS USA: Version 15.0 [dataset] Minneapolis, MN: IPUMS, 2024.
 <https://doi.org/10.18128/D010.V15.0>
 
-#2
-Benabou, Roland, and Efe A. Ok. “Social Mobility and the Demand for Redistribution: The Poum Hypothesis.” The Quarterly Journal of Economics 116, no. 2 (2001): 447–87.
+#2 Benabou, Roland, and Efe A. Ok. “Social Mobility and the Demand for Redistribution: The Poum Hypothesis.” The Quarterly Journal of Economics 116, no. 2 (2001): 447–87.
 <http://www.jstor.org/stable/2696470>.
 
-#3
-Solon, Gary.
+#3 Solon, Gary.
 “Intergenerational Income Mobility in the United States.” The American Economic Review 82, no. 3 (1992): 393–408.
 <http://www.jstor.org/stable/2117312>.
-
