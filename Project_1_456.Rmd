@@ -435,9 +435,8 @@ By refining our techniques, we can develop a stronger predictive model that bett
 
 Sources cited:
 
-#1 Steven Ruggles, Sarah Flood, Matthew Sobek, Daniel Backman, Annie Chen, Grace Cooper, Stephanie Richards, Renae Rodgers, and Megan Schouweiler.
-IPUMS USA: Version 15.0 [dataset] Minneapolis, MN: IPUMS, 2024.
-<https://doi.org/10.18128/D010.V15.0>
+#1 Himanshu Nakrani.
+[https://www.kaggle.com/datasets/himanshunakrani/student-study](#0){.uri}
 
 #2 Benabou, Roland, and Efe A. Ok. “Social Mobility and the Demand for Redistribution: The Poum Hypothesis.” The Quarterly Journal of Economics 116, no. 2 (2001): 447–87.
 <http://www.jstor.org/stable/2696470>.
