@@ -33,10 +33,10 @@ Again, considering the more ideal elements of a similar analysis described by So
 
 ```{r, include = FALSE }
 # remove comments out these blocks to install the R packages that are being used
-#install.packages("ipumsr") # for the data set
-#install.packages("dplyr") # for the data set
-#install.packages("caTools") # use this for the set seed of the training set
-#install.packages("ggplot2") # graph and display data
+install.packages("ipumsr") # for the data set
+install.packages("dplyr") # for the data set
+install.packages("caTools") # use this for the set seed of the training set
+install.packages("ggplot2") # graph and display data
 
 # Code to implement the R packages
 library(ipumsr) 
@@ -77,9 +77,10 @@ Here are the key variables included in the dataset:\
 ## Information about the Data set
 
 ```{r}
-ddi <- read_ipums_ddi("usa_00001.xml")
-data <- read_ipums_micro(ddi)
-dim(data)
+file_path <- "student_study_hours.csv"
+data <- read.csv(file_path, header = TRUE, stringsAsFactors = FALSE)
+X_data <- data$Hours
+Y_data <- data$Scores
 summary(data)
 ```
 
@@ -87,11 +88,6 @@ summary(data)
 
 ```{r}
 #View(data)
-#The Code struggles to run the data set with 2 million points is two extensive to run, So select a random sample of 200,000 points
-set.seed(11)
-
-s <- sample(1:nrow(data), size = 200000)
-data <- data[s, ]
 dim(data)
 
 ```
@@ -102,32 +98,35 @@ dim(data)
 # select the age and the Total Household income as the main columns of interest, then filter based of 18 <= age <= 65 (Thats the only age bracket that is currently working and has other factors effecting income). Also, there is a negative value in household income which doesn't make sense at all, so we filter it out. 
 
 # ask if the filter crashes out after a certain amount on the computer and if we need to shrink the train size
-data <- data %>%
-  select(AGE, HHINCOME) %>%
-  mutate(HHINCOME = as.numeric(HHINCOME), AGE = as.numeric(AGE)) %>%
-  filter(!is.na(HHINCOME), !is.na(AGE)) %>%
-  filter(between(AGE, 18, 65)) %>%
-  filter(HHINCOME > 0)
+ data <- data %>%
+   select(Hours, Scores) %>%
+   mutate(Scores = as.numeric(Scores), Hours = as.numeric(Hours))
+#   filter(!is.na(HHINCOME), !is.na(AGE)) %>%
+#   filter(between(AGE, 18, 65)) %>%
+#   filter(HHINCOME > 0)
 
-dim(data)  #if you want to view the two filtered columns
+# dim(data)  #if you want to view the two filtered columns
 
-IQR_of_AGE <- IQR(data$AGE, na.rm = TRUE)
-IQR_of_HHINCOME <- IQR(data$HHINCOME, na.rm = TRUE)
+IQR_of_AGE <- IQR(X_data, na.rm = TRUE)
+IQR_of_HHINCOME <- IQR(Y_data, na.rm = TRUE)
 
 
-AGE_lower <- quantile(data$AGE, 0.25, na.rm = TRUE) - 1.5 * IQR_of_AGE
-AGE_upper <- quantile(data$AGE, 0.75, na.rm = TRUE) + 1.5 * IQR_of_AGE
+AGE_lower <- quantile(X_data, 0.25, na.rm = TRUE) - 1.5 * IQR_of_AGE
+AGE_upper <- quantile(X_data, 0.75, na.rm = TRUE) + 1.5 * IQR_of_AGE
 
-HHINCOME_lower <- quantile(data$HHINCOME, 0.25, na.rm = TRUE) - 1.5 * IQR_of_HHINCOME
-HHINCOME_upper <- quantile(data$HHINCOME, 0.75, na.rm = TRUE) + 1.5 * IQR_of_HHINCOME
+HHINCOME_lower <- quantile(Y_data, 0.25, na.rm = TRUE) - 1.5 * IQR_of_HHINCOME
+HHINCOME_upper <- quantile(Y_data, 0.75, na.rm = TRUE) + 1.5 * IQR_of_HHINCOME
 
 #continue to filter any of the outliers
 filtered_data <- data %>%
-  filter(AGE >= AGE_lower & AGE <= AGE_upper)%>%
-    filter(HHINCOME >= HHINCOME_lower & HHINCOME <= HHINCOME_upper)
+  filter(Hours >= AGE_lower & Hours <= AGE_upper)%>%
+    filter(Scores >= HHINCOME_lower & Scores <= HHINCOME_upper)
 
 # we check and see the data sets we have filtered out of here
 dim(filtered_data) 
+
+X_filtered_data <- filtered_data$Hours
+Y_filtered_data <- filtered_data$Scores
 
 ```
 
@@ -138,7 +137,7 @@ dim(filtered_data)
 We can see in the histogram for Age that there is a relatively normal distribution with no extreme skew or any outliers present at all.
 
 ```{r}
-ggplot(data, aes(x = AGE)) +
+ggplot(data, aes(x = Hours)) +
   geom_histogram(binwidth = 5, fill = "blue", color = "black", alpha = 0.7) +
   labs(title = "Distribution of Age", x = "Age", y = "Frequency") +
   theme_minimal()
@@ -151,7 +150,7 @@ We can see here that pre-filtering our data has a very large right skew and an e
 It's likely this data set interviewed a lot of households who come from this category.
 
 ```{r}
-ggplot(data, aes(x = HHINCOME)) +
+ggplot(data, aes(x = Scores)) +
   geom_histogram(binwidth = 10000, fill = "green", color = "black", alpha = 0.7) +
   labs(title = "Distribution of Household Income", x = "Household Income", y = "Frequency") +
   theme_minimal()
@@ -165,7 +164,7 @@ We can see in the histogram for Age that there is a relatively normal distributi
 so we have a fairly balanced data set.
 
 ```{r}
-ggplot(filtered_data, aes(x = AGE)) +
+ggplot(filtered_data, aes(x = Hours)) +
   geom_histogram(binwidth = 5, fill = "blue", color = "black", alpha = 0.7) +
   labs(title = "Distribution of Age", x = "Age", y = "Frequency") +
   theme_minimal()
@@ -177,7 +176,7 @@ Although the data set still contains a right skew, The data is a lot better of a
 There are no extreme outliers and actual as mentioned before that skew is bound to be prevalent over the individual as most house holds in the data set earn a relatively modest income
 
 ```{r}
-ggplot(filtered_data, aes(x = HHINCOME)) +
+ggplot(filtered_data, aes(x = Scores)) +
   geom_histogram(binwidth = 10000, fill = "green", color = "black", alpha = 0.7) +
   labs(title = "Distribution of Household Income", x = "Household Income", y = "Frequency") +
   theme_minimal()
@@ -188,13 +187,13 @@ ggplot(filtered_data, aes(x = HHINCOME)) +
 ### AGE
 
 ```{R}
-boxplot(data$AGE, main = "Boxplot of Age", col = "lightblue", ylab = "Age")
+boxplot(X_data, main = "Boxplot of Age", col = "lightblue", ylab = "Age")
 ```
 
 ### Household Income
 
 ```{R}
-boxplot(data$HHINCOME, main = "Boxplot of Household Income", col = "lightgreen", ylab = "Household Income", ylim = c(0, 1000000))
+boxplot(Y_data, main = "Boxplot of Household Income", col = "lightgreen", ylab = "Household Income")
 ```
 
 # Analysis
@@ -203,7 +202,7 @@ boxplot(data$HHINCOME, main = "Boxplot of Household Income", col = "lightgreen",
 # modifying data into a training set and a testing set
 set.seed(1)
 # ask about a good metric for the split of the data
-split <- sample.split(filtered_data$HHINCOME, SplitRatio = 0.98)
+split <- sample.split(Y_filtered_data, SplitRatio = 0.8)
 train_set <- subset(filtered_data, split == TRUE)
 test_set <- subset(filtered_data, split == FALSE)
 
@@ -212,13 +211,13 @@ cat(paste("Size of the training set (rows):", nrow(train_set), "\n"))
 cat(paste("Size of the testing set (rows):", nrow(test_set), "\n"))
 
 #model from the training data
-linear_model <- lm(HHINCOME ~ AGE, data = train_set)
+linear_model <- lm(Scores ~ Hours, data = train_set)
 
-# Prediceted values on the test set
-test_set$predicted_HHI <- predict(linear_model, newdata = test_set)
+# Predicted values on the test set
+test_set$Scores <- predict(linear_model, newdata = test_set)
 
 # calculate residuals for the test set
-test_set$residuals <- test_set$HHINCOME - test_set$predicted_HHI
+test_set$residuals <- test_set$Scores - test_set$Scores
 
 
 # Display equation information for the simple linear regression
@@ -242,10 +241,10 @@ $$
 ### Linear Regression with Training Data
 
 ```{r}
-plot(train_set$AGE, train_set$HHINCOME, main="HHINCOME vs AGE", xlab="Age", ylab="Household Income")
+plot(train_set$Hours, train_set$Scores, main="HHINCOME vs AGE", xlab="Age", ylab="Household Income")
 
 # Fit the linear regression model
-model <- lm(HHINCOME ~ AGE, data = train_set)
+model <- lm(Scores ~ Hours, data = train_set)
 
 # Add the regression line to the plot
 abline(model, col="red")
@@ -261,10 +260,8 @@ This plot is also referenced in the next session for further assessment.
 
 ```{r}
 
-plot(test_set$AGE, test_set$HHINCOME, main="HHINCOME vs AGE", xlab="Age", ylab="Household Income")
+plot(test_set$Hours, test_set$Scores, main="HHINCOME vs AGE", xlab="Age", ylab="Household Income")
 
-# Fit the linear regression model
-model <- lm(HHINCOME ~ AGE, data = train_set)
 
 # Add the regression line to the plot
 abline(model, col="red")
@@ -292,6 +289,7 @@ With this Our predicted linear equation is
 ### Model Assessment
 
 ```{r}
+predicted_HHI <- predict(model, newdata = test_set)
 ggplot(test_set, aes(x = predicted_HHI, y = residuals)) +
   geom_point(alpha = 0.5, color = 'black') +
   geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
@@ -371,11 +369,10 @@ The Mean Squared Error displays an extremely high number.this means there is a l
 **Prediction vs. Actual Plot:**
 
 ```{r}
-plot(test_set$AGE, test_set$HHINCOME, main="Prediction vs Actual", 
+plot(test_set$Hours, test_set$Scores, main="Prediction vs Actual", 
      xlab="Age", ylab="Household Income", pch=16, col="blue")
 
 # add linear regression model
-model <- lm(HHINCOME ~ AGE, data = train_set)
 abline(model, col="red", lwd=3)
 
 
