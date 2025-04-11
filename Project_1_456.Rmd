@@ -1,6 +1,9 @@
 ---
 title: "Relation between Age and Household Income"
 author: "Anthony Yasan, Preston O'Connor, Khoa Dao, Matthew Jacob, Nick Wierzbowski"
+header-includes:
+  \usepackage{fvextra}
+  \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
 date: "2025-02-26"
 output: pdf_document
 editor_options: 
@@ -76,7 +79,7 @@ Here are the key variables included in the dataset:\
 
 ## Information about the Data set
 
-```{r}
+```{r warning=FALSE}
 ddi <- read_ipums_ddi("usa_00001.xml")
 data <- read_ipums_micro(ddi)
 dim(data)
@@ -101,7 +104,6 @@ dim(data)
 ```{r}
 # select the age and the Total Household income as the main columns of interest, then filter based of 18 <= age <= 65 (Thats the only age bracket that is currently working and has other factors effecting income). Also, there is a negative value in household income which doesn't make sense at all, so we filter it out. 
 
-# ask if the filter crashes out after a certain amount on the computer and if we need to shrink the train size
 data <- data %>%
   select(AGE, HHINCOME) %>%
   mutate(HHINCOME = as.numeric(HHINCOME), AGE = as.numeric(AGE)) %>%
@@ -202,8 +204,7 @@ boxplot(data$HHINCOME, main = "Boxplot of Household Income", col = "lightgreen",
 ```{r}
 # modifying data into a training set and a testing set
 set.seed(1)
-# ask about a good metric for the split of the data
-split <- sample.split(filtered_data$HHINCOME, SplitRatio = 0.98)
+split <- sample.split(filtered_data$HHINCOME, SplitRatio = 0.80)
 train_set <- subset(filtered_data, split == TRUE)
 test_set <- subset(filtered_data, split == FALSE)
 
@@ -225,16 +226,15 @@ test_set$residuals <- test_set$HHINCOME - test_set$predicted_HHI
 linear_model
 ```
 
-For the data set, we implemented 98% (103,723 points) of filtered data options goes towards training our model.
-The large percentage was used due to the Extreme scale of data we are implementing.
-The Testing set implemented 2% (1,660 points) of the data and we implemented for the testing and assessment of our regression algorithm.
+For the data set, we implemented 80% (85,565 points) of filtered data options goes towards training our model.
+The Testing set implemented 20% (19,818 points) of the data and we implemented for the testing and assessment of our regression algorithm.
 
 Thus Through our training data we get the The following regression model $$
-HHINCOME = 115580.53 + 33.32 \times AGE
+HHINCOME = 115335.69 + 39.32 \times AGE
 $$ Which we can streamline down into the following linear regression problem
 
 $$ 
-y = 115580.53 + 33.32 x_1
+y = 115335.69 + 39.32 x_1
 $$
 
 ## Implementing the Plots
